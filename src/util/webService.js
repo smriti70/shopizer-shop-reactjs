@@ -2,6 +2,7 @@ import axios from 'axios';
 import { getLocalData } from './helper'
 
 const BASE_URL = window._env_.APP_BASE_URL + window._env_.APP_API_VERSION;
+const BASE_URL_V2 = window._env_.APP_BASE_URL + '/api/v2/';
 axios.defaults.baseURL = BASE_URL
 
 export default class WebService {

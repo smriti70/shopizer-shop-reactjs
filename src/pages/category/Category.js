@@ -39,6 +39,7 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
     const [size, setSize] = useState([]);
     const [selectedOption, setSelectedOption] = useState([]);
     const [selectedManufature, setSelectedManufature] = useState([]);
+    const [priceRange, setPriceRange] = useState({ min: 0, max: Infinity });
     // const [sortedProducts, setSortedProducts] = useState([]);
 
     const { pathname } = location;
@@ -73,8 +74,13 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
             // console.log(tempSelectedSize)
             setSelectedManufature(tempSelectedManufature)
         }
-        // console.log(categoryValue, tempSelectedOption, selectedManufature)
-        getProductList(categoryValue, tempSelectedOption, tempSelectedManufature)
+        else if (sortType === 'price') {
+            setPriceRange(sortValue);
+            setOffset(0);
+            getProductList(categoryID, selectedOption, selectedManufature, sortValue, true);
+            return;
+        }
+        getProductList(categoryID, tempSelectedOption, tempSelectedManufature)
     }
 
     const getCategoryParams = (sortType, sortValue) => {
@@ -95,14 +101,15 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
         setSize([])
         setSelectedManufature([])
         setSelectedOption([])
-        getProductList(categoryID, [], [])
+        getProductList(categoryID, [], [], priceRange)
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [categoryID, offset]);
-    const getProductList = async (categoryid, size, manufacture) => {
+    }, [categoryID, offset, priceRange]);
+    const getProductList = async (categoryid, size, manufacture, priceFilter, skipCategoryDetails) => {
         setLoader(true)
-        // setProductData([]);
-        // let action = `${constant.ACTION.PRODUCTS} + '?store=' + defaultStore + '&lang=' + currentLanguageCode + '&start=' + offset + '&count=' + pageLimit + '&category=' + categoryID`;
-        let action = `${constant.ACTION.PRODUCTS}?${isCheckValueAndSetParams('&store=', defaultStore)}${isCheckValueAndSetParams('&lang=', currentLanguageCode)}${isCheckValueAndSetParams('&page=', offset)}${isCheckValueAndSetParams('&count=', pageLimit)}${isCheckValueAndSetParams('&category=', categoryid)}${isCheckValueAndSetParams('&optionValues=', size.join())}${isCheckValueAndSetParams('&manufacturer=', manufacture.join())}`;
+        const pr = priceFilter || priceRange;
+        const minPriceParam = pr.min > 0 ? `&minPrice=${pr.min}` : '';
+        const maxPriceParam = pr.max !== Infinity ? `&maxPrice=${pr.max}` : '';
+        let action = `${window._env_.APP_BASE_URL}/api/v2/products?store=${defaultStore}&lang=${currentLanguageCode}&page=${offset}&count=${pageLimit}${categoryid ? '&category=' + categoryid : ''}${size.join() ? '&optionValues=' + size.join() : ''}${manufacture.join() ? '&manufacturer=' + manufacture.join() : ''}${minPriceParam}${maxPriceParam}`;
         try {
             let response = await WebService.get(action);
             if (response) {
@@ -115,7 +122,7 @@ const Category = ({ setCategoryID, isLoading, strings, location, defaultStore, c
             setLoader(false)
         }
 
-        getCategoryDetails(categoryid)
+        if (!skipCategoryDetails) getCategoryDetails(categoryid)
     }
     const getCategoryDetails = async (categoryid) => {
         let action = constant.ACTION.CATEGORY + categoryid + '?store=' + defaultStore + '&lang=' + currentLanguageCode;
