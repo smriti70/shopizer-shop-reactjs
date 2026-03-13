@@ -84,6 +84,7 @@
     "sass": "^1.29.0"
   },
   "overrides": {
-    "@babel/plugin-syntax-import-attributes": "7.24.7"
+    "@babel/plugin-syntax-import-attributes": "7.24.7",
+    "babel-preset-current-node-syntax": "1.0.1"
   }
 }
