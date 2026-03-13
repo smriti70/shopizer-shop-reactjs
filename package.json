@@ -82,5 +82,8 @@
     "@testing-library/user-event": "^13.5.0",
     "redux-devtools-extension": "^2.13.8",
     "sass": "^1.29.0"
+  },
+  "overrides": {
+    "@babel/plugin-syntax-import-attributes": "7.24.7"
   }
 }
