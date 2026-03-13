@@ -28,7 +28,8 @@ jobs:
       - name: Build artifact
         run: npm run build
         env:
-          CI: false  # suppress warnings-as-errors during build
+          CI: false
+          NODE_OPTIONS: --openssl-legacy-provider
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
